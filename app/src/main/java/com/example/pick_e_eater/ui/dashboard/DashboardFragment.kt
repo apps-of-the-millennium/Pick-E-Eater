@@ -33,13 +33,13 @@ class DashboardFragment : Fragment() {
 //            textView.text = it
 //        }
 
-        val spinnerId = binding.ratingSpinner
-        val spinnerId2 = binding.ratingSpinner2
+        val ratingSpinnerId = binding.ratingSpinner
+        val costSpinnerId = binding.costSpinner
 
-        val options = listOf(">=", "<=")
+        val options = listOf(">=", "<=", "==")
         val arrayAdp = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, options)
-        spinnerId.adapter = arrayAdp
-        spinnerId2.adapter = arrayAdp
+        ratingSpinnerId.adapter = arrayAdp
+        costSpinnerId.adapter = arrayAdp
 
         return root
     }
