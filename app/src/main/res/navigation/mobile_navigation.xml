@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.pick_e_eater.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_filters"
+        android:name="com.example.pick_e_eater.ui.filters.FilterFragment"
+        android:label="@string/title_filters"
+        tools:layout="@layout/fragment_filters" />
 
     <fragment
         android:id="@+id/navigation_notifications"
