@@ -10,6 +10,11 @@ import android.widget.GridLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.pick_e_eater.databinding.FragmentFiltersBinding
+import com.example.pick_e_eater.di.DatabaseModule
+import com.example.pick_e_eater.model.Restaurant
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FilterFragment : Fragment() {
 
@@ -64,6 +69,20 @@ class FilterFragment : Fragment() {
         selectAll.setOnCheckedChangeListener { _, isChecked ->
             for (checkbox in checkboxes) {
                 checkbox.isChecked = isChecked
+            }
+        }
+
+        // Temp testing database
+        val restaurantDb = DatabaseModule.provideDatabase(requireContext())
+        System.err.println(restaurantDb)
+
+        val restaurantDao = restaurantDb.restaurantDao()
+        System.err.println(restaurantDao)
+        binding.testButton.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                val restaurants: List<Restaurant> = restaurantDao.getAllEntities()
+
+                    System.err.println(restaurants)
             }
         }
 

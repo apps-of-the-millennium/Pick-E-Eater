@@ -15,6 +15,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- TODO: take out-->
+            <Button
+                android:id="@+id/test_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Button" />
+
             <TextView
                 android:id="@+id/ratingTextView"
                 android:layout_width="match_parent"
