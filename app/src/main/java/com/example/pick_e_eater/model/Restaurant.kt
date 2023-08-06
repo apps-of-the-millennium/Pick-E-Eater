@@ -14,8 +14,9 @@ data class Restaurant(
     val rest_url: String?,
     val rest_area: String?,
     val rest_address: String,
-    // val rest_lat: Long,
-    // val rest_long: Long,
+    //    Could store as real but text works well too just need to conv
+    val rest_lat: Double?,
+    val rest_long: Double?,
     val hours_mon: String?,
     val hours_tues: String?,
     val hours_wed: String?,

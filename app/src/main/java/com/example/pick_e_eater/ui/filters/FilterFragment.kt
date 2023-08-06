@@ -81,8 +81,7 @@ class FilterFragment : Fragment() {
         binding.testButton.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 val restaurants: List<Restaurant> = restaurantDao.getAllEntities()
-
-                    System.err.println(restaurants)
+                System.err.println(restaurants)
             }
         }
 
