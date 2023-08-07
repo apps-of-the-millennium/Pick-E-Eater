@@ -14,9 +14,9 @@ interface RestaurantDao {
     @Query("SELECT * FROM restaurant WHERE rest_name == '100 Percent Korean'")
     suspend fun getAllEntities(): List<Restaurant>
 
-    @Query("SELECT * FROM restaurant WHERE rest_lat >= :lat_left AND " +
-            "rest_lat <= :lat_right AND rest_long <= :long_up AND rest_long >= :long_down")
-    suspend fun getWithinRange(lat_left: Double, lat_right: Double, long_down: Double, long_up: Double): List<Restaurant>
+    @Query("SELECT id FROM restaurant WHERE rest_lat >= :lat_down AND " +
+            "rest_lat <= :lat_up AND rest_long <= :long_right AND rest_long >= :long_left")
+    suspend fun getWithinRange(lat_up: Double, lat_down: Double, long_left: Double, long_right: Double): List<Int>
 
     // Add more queries as needed
 }

@@ -72,17 +72,8 @@ class FilterFragment : Fragment() {
             }
         }
 
-        // Temp testing database
-        val restaurantDb = DatabaseModule.provideDatabase(requireContext())
-        System.err.println(restaurantDb)
-
-        val restaurantDao = restaurantDb.restaurantDao()
-        System.err.println(restaurantDao)
         binding.testButton.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                val restaurants: List<Restaurant> = restaurantDao.getAllEntities()
-                System.err.println(restaurants)
-            }
+            getRestaurants()
         }
 
         return root
@@ -91,5 +82,50 @@ class FilterFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    data class LatLng(val latitude: Double, val longitude: Double)
+
+    private fun calculateNewCoords(lat: Double, lon: Double, distanceInKm: Double): List<LatLng> {
+        val degreesPerKm = 0.009
+
+        val north = LatLng(lat + distanceInKm * degreesPerKm, lon)
+        val south = LatLng(lat - distanceInKm * degreesPerKm, lon)
+        val east = LatLng(lat, lon + distanceInKm * degreesPerKm)
+        val west = LatLng(lat, lon - distanceInKm * degreesPerKm)
+
+        return listOf(north, south, east, west)
+    }
+
+    fun getRestaurants(): List<Int>? {
+        // TODO: add function that pulls our current location
+        // TODO: Provide opportunity to change location via map
+        val startingPoint = LatLng(43.65427, -79.39925) // Example starting point
+        // TODO: pull from distance input in fragment, may need to confirm it's a number
+        val distanceInKm = 5.0
+
+        val newCoordinates =
+            calculateNewCoords(startingPoint.latitude, startingPoint.longitude, distanceInKm)
+
+        // North
+        val latUp = newCoordinates[0].latitude
+        // South
+        val latDown = newCoordinates[1].latitude
+        // East
+        val longRight = newCoordinates[2].longitude
+        // West
+        val longLeft = newCoordinates[3].longitude
+
+        val restaurantDb = DatabaseModule.provideDatabase(requireContext())
+
+        val restaurantDao = restaurantDb.restaurantDao()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val restaurants: List<Int> =
+                restaurantDao.getWithinRange(latUp, latDown, longLeft, longRight)
+            System.err.println(restaurants)
+        }
+        return null
+
     }
 }
