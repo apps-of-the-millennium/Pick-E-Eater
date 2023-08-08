@@ -10,13 +10,27 @@ interface RestaurantDao {
     @Insert
     suspend fun insert(entity: Restaurant)
 
-    // TODO: table name hardcoded
-    @Query("SELECT * FROM restaurant WHERE rest_name == '100 Percent Korean'")
-    suspend fun getAllEntities(): List<Restaurant>
+    @Query("SELECT id FROM restaurant WHERE rest_lat >= :lat_down AND " +
+            "rest_lat <= :lat_up AND rest_long <= :long_right AND rest_long >= :long_left AND "+
+            "(:curr_day != 'Closed' or :curr_day is null) AND rest_type IN (:food_types)")
+    suspend fun getWithFilters(lat_up: Double, lat_down: Double, long_left: Double,
+                               long_right: Double, curr_day: String,
+                               food_types: MutableList<String>): List<Int>
 
     @Query("SELECT id FROM restaurant WHERE rest_lat >= :lat_down AND " +
             "rest_lat <= :lat_up AND rest_long <= :long_right AND rest_long >= :long_left")
-    suspend fun getWithinRange(lat_up: Double, lat_down: Double, long_left: Double, long_right: Double): List<Int>
+    suspend fun getWithinRange(lat_up: Double, lat_down: Double, long_left: Double,
+                               long_right: Double): List<Int>
+
+    @Query("SELECT id FROM restaurant WHERE :curr_day != 'Closed' or :curr_day is null")
+    suspend fun checkClosed(curr_day: String): List<Int>
+
+    @Query("SELECT id FROM restaurant WHERE rest_type IN (:food_types)")
+    suspend fun getFoodType(food_types: MutableList<String>): List<Int>
+
+//    TODO: add these to the database (rating and cost)
+//    @Query("SELECT id FROM restaurant WHERE rest_rating :rating_op :rating AND rest_cost :cost_op :cost")
+//    suspend fun getWithinRatingAndCost(rating_op: String, rating: Int, cost_op: String, cost: Int) :List<Int>
 
     // Add more queries as needed
 }
