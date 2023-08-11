@@ -8,11 +8,15 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.GridLayout
 import androidx.fragment.app.Fragment
+import com.example.pick_e_eater.BuildConfig
 import com.example.pick_e_eater.databinding.FragmentFiltersBinding
 import com.example.pick_e_eater.di.DatabaseModule
-//import com.google.android.gms.maps.GoogleMap
-//import com.google.android.gms.maps.MapView
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,14 +32,13 @@ class FilterFragment : Fragment() {
 
     // Currently limit to 24 while testing
     // TODO: enumerate later to check which has been checked off
-    val foodTypes = arrayOf("Afghan", "African", "American/Canadian", "Caribbean", "Chinese",
+    private val foodTypes = arrayOf("Afghan", "African", "American/Canadian", "Caribbean", "Chinese",
         "Colombian", "Desserts", "Egyptian", "Ethiopian", "Filipino", "Fast Food", "Greek",
         "German", "Indian", "Indonesian", "Italian", "Japanese", "Lebanese", "Mexican",
         "Middle Eastern", "Pakistani", "Turkish", "Vietnamese", "TBD")
 
-//    private lateinit var mapView: MapView
-//    private lateinit var googleMap: GoogleMap
     private val checkBoxes = ArrayList<CheckBox>()
+    private var inputLatLng = LatLng(0.0,0.0)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,6 +81,26 @@ class FilterFragment : Fragment() {
                 getRestaurants()
             }
         }
+
+        // Initialize Places SDK with your API key
+        Places.initialize(context, BuildConfig.MAPS_API_KEY)
+        val autocompleteFragment = childFragmentManager.fragments[0] as AutocompleteSupportFragment
+        System.err.println(autocompleteFragment)
+
+        autocompleteFragment.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.LAT_LNG))
+        autocompleteFragment.setCountry("CAN")
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                // TODO: Get info about the selected place.
+                System.err.println("Place: ${place.address}, ${place.latLng}")
+                autocompleteFragment.setText(place.address)
+                inputLatLng = place.latLng
+            }
+            override fun onError(status: Status) {
+                // TODO: Handle the error.
+                System.err.println( "An error occurred: $status")
+            }
+        })
 
         return root
     }
@@ -128,9 +151,9 @@ class FilterFragment : Fragment() {
     }
 
     private fun getRestaurants(): List<Int>? {
-        // TODO: add function that pulls our current location
-        // TODO: Provide opportunity to change location via map (Hardcoded for now)
-        val startingPoint = LatLng(43.65427, -79.39925) // Example starting point
+        // TODO: handle empty input
+        val startingPoint = inputLatLng
+        System.err.println(startingPoint)
         val distanceInKm = binding.distanceInput.text.toString().toDouble()
 
         val newCoordinates =
