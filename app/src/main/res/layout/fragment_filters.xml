@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.filters.FilterFragment">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -20,27 +20,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/location" />
+                android:text="@string/location"
+                android:layout_marginTop="16dp"/>
 
-            <FrameLayout
-                android:id="@+id/autocompleteContainer"
+            <TextView
+                android:id="@+id/error_message_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:visibility="gone"
+                android:gravity="center"
+                android:textColor="@android:color/holo_red_dark" />
 
-                <fragment
+                <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/autocompleteFragment"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
-            </FrameLayout>
 
             <TextView
                 android:id="@+id/distanceTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/distance" />
+                android:text="@string/distance"
+                android:layout_marginTop="16dp"/>
 
             <EditText
                 android:id="@+id/distanceInput"
@@ -54,7 +57,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/rating" />
+                android:text="@string/rating"
+                android:layout_marginTop="16dp"/>
 
             <LinearLayout
                 android:id="@+id/ratingLayout"
@@ -82,7 +86,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
 
                 <TextView
                     android:id="@+id/foodTypeTextView"
@@ -112,7 +117,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/cost" />
+                android:text="@string/cost"
+                android:layout_marginTop="16dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -142,7 +148,10 @@
                 android:layout_height="wrap_content"
                 android:text="@string/randomize" />
 
+            <!-- TODO: I don't like this has to do with nav bar in activity_main -->
+            <Space android:layout_width="match_parent"
+                android:layout_height="60dp" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

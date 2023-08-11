@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.GridLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.pick_e_eater.BuildConfig
 import com.example.pick_e_eater.databinding.FragmentFiltersBinding
@@ -84,17 +85,16 @@ class FilterFragment : Fragment() {
 
         // Initialize Places SDK with your API key
         Places.initialize(context, BuildConfig.MAPS_API_KEY)
+        // TODO: There's probably a better way to do this
         val autocompleteFragment = childFragmentManager.fragments[0] as AutocompleteSupportFragment
-        System.err.println(autocompleteFragment)
-
-        autocompleteFragment.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.LAT_LNG))
+        autocompleteFragment.setPlaceFields(listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG))
         autocompleteFragment.setCountry("CAN")
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                // TODO: Get info about the selected place.
                 System.err.println("Place: ${place.address}, ${place.latLng}")
                 autocompleteFragment.setText(place.address)
                 inputLatLng = place.latLng
+                binding.errorMessageText.isVisible = false
             }
             override fun onError(status: Status) {
                 // TODO: Handle the error.
@@ -112,6 +112,11 @@ class FilterFragment : Fragment() {
 
     // TODO: validation check for rating and cost maybe empty checkboxes?
     private fun validationCheck(): Boolean {
+        // TODO: check if it's empty, this only works with default no input otherwise will use prev input even if empty
+        if (inputLatLng == LatLng(0.0,0.0)) {
+            binding.errorMessageText.isVisible = true
+            binding.errorMessageText.text = "Please enter a location"
+        }
         if (binding.distanceInput.text.toString() == "" || binding.distanceInput.text.toString().toDouble() == 0.0) {
             binding.distanceInput.error = "Distance required, must be greater than 0"
             return false
