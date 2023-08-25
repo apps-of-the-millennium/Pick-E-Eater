@@ -5,15 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +26,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -107,6 +111,7 @@ class NotificationsFragment : Fragment() {
 //        autoScrollDuration: Long = 200L
     ) {
         var cardFace by remember { mutableStateOf(CardFace.Front) }
+        var resultsVisible by remember { mutableStateOf(false) }
         // AUTO SCALE
         var boxState by remember { mutableStateOf(BoxState.Start) }
         val scale:Dp by animateDpAsState(
@@ -129,22 +134,28 @@ class NotificationsFragment : Fragment() {
                         val nextPage = (currentPage + 1).mod(pageCount)
                         animateScrollToPage(page = nextPage)
                         currentPageKey = nextPage
-                        if (currentPage == 5) {
+                        // TODO: hard coded to 8 spins but will change later
+                        if (currentPage == 8) {
                             boxState = BoxState.End
                         }
                     }
                 }
             }
         }
-        HorizontalPager(pageCount = pageCount, state = pagerState,
+        // TODO: May want to change this to make it look more like a wheel spin animation
+        HorizontalPager(
+            pageCount = pageCount,
+            state = pagerState,
             userScrollEnabled = false
         ) { page ->
             FlipCard(
                 cardFace = cardFace,
                 front = { questionBlock(scale) },
-                back = { questionBlock(scale) }
+                back = { questionBlock(scale) },
+                onAnimationDone = { resultsVisible = true},
             )
         }
+        viewResultsBtn(resultsVisible)
     }
 
     @Composable
@@ -153,13 +164,18 @@ class NotificationsFragment : Fragment() {
         modifier: Modifier = Modifier,
         back: @Composable () -> Unit = {},
         front: @Composable () -> Unit = {},
+        onAnimationDone:() -> Unit,
     ) {
+
         val rotation = animateFloatAsState(
             targetValue = cardFace.angle,
             animationSpec = tween(
                 durationMillis = 400,
                 easing = FastOutSlowInEasing,
-            )
+            ),
+            finishedListener = {
+                onAnimationDone()
+            }
         )
         Column(
             modifier = modifier
@@ -174,16 +190,14 @@ class NotificationsFragment : Fragment() {
             if (rotation.value <= 90f) {
                 front()
             } else {
-//                TODO: Box w/ graphicsLayer allows content to not be flipped but change this to go to results page
-//                Box(
-//                    Modifier
-//                        .fillMaxSize()
-//                        .graphicsLayer {
-//                            rotationY = 180f
-//                        },
-//                ) {
+                Column(
+                    Modifier
+                        .graphicsLayer {
+                            rotationY = 180f
+                        },
+                ) {
                     back()
-//                }
+                }
             }
         }
     }
@@ -208,6 +222,27 @@ class NotificationsFragment : Fragment() {
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center,
             )
+        }
+    }
+
+    @Composable
+    fun viewResultsBtn(visible: Boolean) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Button(
+                    onClick = {
+                        //TODO: take you to the results page
+                    })
+                {
+                    Text("View Results")
+                }
+            }
         }
     }
 }
