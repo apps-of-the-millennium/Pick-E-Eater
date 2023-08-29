@@ -58,10 +58,10 @@ enum class BoxState {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-@Preview(showBackground = true)
 fun AwesomeCarousel(
     pageCount: Int = 25,
     pagerState: PagerState = rememberPagerState(),
+    restaurantId: Int,
 //        autoScrollDuration: Long = 200L
 ) {
     var cardFace by remember { mutableStateOf(CardFace.Front) }
@@ -102,14 +102,19 @@ fun AwesomeCarousel(
         state = pagerState,
         userScrollEnabled = false
     ) {
-        FlipCard(
-            cardFace = cardFace,
-            front = { questionBlock(scale) },
-            back = { questionBlock(scale) },
-            onAnimationDone = { resultsVisible = true},
-        )
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .background(Color.White)
+        ) {
+            FlipCard(
+                cardFace = cardFace,
+                front = { questionBlock(scale) },
+                back = { questionBlock(scale) },
+                onAnimationDone = { resultsVisible = true },
+            )
+        }
+        viewResultsBtn(resultsVisible, restaurantId)
     }
-    viewResultsBtn(resultsVisible)
 }
 
 @Composable
@@ -180,7 +185,7 @@ fun questionBlock(scale: Dp) {
 }
 
 @Composable
-fun viewResultsBtn(visible: Boolean) {
+fun viewResultsBtn(visible: Boolean, restaurantId: Int) {
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -192,6 +197,7 @@ fun viewResultsBtn(visible: Boolean) {
             Button(
                 onClick = {
                     //TODO: take you to the results page
+                    restaurantId
                 })
             {
                 Text("View Results")

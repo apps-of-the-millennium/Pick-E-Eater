@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.GridLayout
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.pick_e_eater.BuildConfig
+import com.example.pick_e_eater.animations.AwesomeCarousel
 import com.example.pick_e_eater.databinding.FragmentFiltersBinding
 import com.example.pick_e_eater.di.DatabaseModule
 import com.google.android.gms.common.api.Status
@@ -18,9 +21,9 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class FilterFragment : Fragment() {
@@ -41,6 +44,7 @@ class FilterFragment : Fragment() {
     private val checkBoxes = ArrayList<CheckBox>()
     private var inputLatLng = LatLng(0.0,0.0)
 
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -77,11 +81,6 @@ class FilterFragment : Fragment() {
         // Default 1km distance
         binding.distanceInput.setText("1")
 
-        binding.randomizeButton.setOnClickListener {
-            if (validationCheck()) {
-                getRestaurants()
-            }
-        }
 
         // Initialize Places SDK with your API key
         Places.initialize(context, BuildConfig.MAPS_API_KEY)
@@ -98,10 +97,27 @@ class FilterFragment : Fragment() {
             }
             override fun onError(status: Status) {
                 // TODO: Handle the error.
-                System.err.println( "An error occurred: $status")
+                System.err.println("An error occurred: $status")
             }
         })
 
+        binding.randomizeButton.setOnClickListener {
+            lifecycleScope.launch {
+                if (validationCheck()) {
+                    val restaurants = getRestaurants()
+                    System.err.println("GetResults$restaurants")
+                    try {
+                        val finalRest = restaurants.random()
+                        System.err.println(finalRest)
+                        binding.composeView.setContent { AwesomeCarousel(restaurantId = finalRest) }
+                    } catch (e: NoSuchElementException) {
+                        binding.errorMessageText.isVisible = true
+                        binding.errorMessageText.text = "No restaurants available with these filters," +
+                                " please try expanding your options"
+                    }
+                }
+            }
+        }
         return root
     }
 
@@ -116,6 +132,7 @@ class FilterFragment : Fragment() {
         if (inputLatLng == LatLng(0.0,0.0)) {
             binding.errorMessageText.isVisible = true
             binding.errorMessageText.text = "Please enter a location"
+            return false
         }
         if (binding.distanceInput.text.toString() == "" || binding.distanceInput.text.toString().toDouble() == 0.0) {
             binding.distanceInput.error = "Distance required, must be greater than 0"
@@ -155,10 +172,9 @@ class FilterFragment : Fragment() {
         }
     }
 
-    private fun getRestaurants(): List<Int>? {
+    private suspend fun getRestaurants(): List<Int> {
         // TODO: handle empty input
         val startingPoint = inputLatLng
-        System.err.println(startingPoint)
         val distanceInKm = binding.distanceInput.text.toString().toDouble()
 
         val newCoordinates =
@@ -176,7 +192,7 @@ class FilterFragment : Fragment() {
         val restaurantDb = DatabaseModule.provideDatabase(requireContext())
         val restaurantDao = restaurantDb.restaurantDao()
 
-        CoroutineScope(Dispatchers.IO).launch {
+        val validRests = withContext(Dispatchers.IO) {
             val foodTypeList = mutableListOf<String>()
             for (checkbox in checkBoxes) {
                 if(checkbox.isChecked) {
@@ -184,15 +200,17 @@ class FilterFragment : Fragment() {
                 }
             }
 
-            System.err.println(foodTypeList)
             val currDay = getDayOfWeekString(Calendar.getInstance().get(Calendar.DAY_OF_WEEK))
 
             val validRests: List<Int> =
-                restaurantDao.getWithFilters(latUp, latDown, longLeft, longRight,
-                    currDay, foodTypeList)
-            System.err.println(validRests)
-        }
-        return null
+                restaurantDao.getWithFilters(
+                    latUp, latDown, longLeft, longRight,
+                    currDay, foodTypeList
+                )
 
+            System.err.println("In coroutine$validRests")
+            return@withContext validRests
+        }
+        return validRests
     }
 }

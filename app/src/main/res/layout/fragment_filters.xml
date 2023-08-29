@@ -154,4 +154,10 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <androidx.compose.ui.platform.ComposeView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/compose_view">
+    </androidx.compose.ui.platform.ComposeView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
