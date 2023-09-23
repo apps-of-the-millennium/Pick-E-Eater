@@ -15,6 +15,7 @@ import com.example.pick_e_eater.BuildConfig
 import com.example.pick_e_eater.animations.AwesomeCarousel
 import com.example.pick_e_eater.databinding.FragmentFiltersBinding
 import com.example.pick_e_eater.di.DatabaseModule
+import com.example.pick_e_eater.model.RestaurantObject
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
@@ -103,19 +104,21 @@ class FilterFragment : Fragment() {
 
         binding.randomizeButton.setOnClickListener {
             lifecycleScope.launch {
-                if (validationCheck()) {
+//                if (validationCheck()) {
+                    inputLatLng = LatLng(43.6376,-79.5355)
                     val restaurants = getRestaurants()
                     System.err.println("GetResults$restaurants")
                     try {
                         val finalRest = restaurants.random()
+                        val restaurant = getRestaurantObject(restId = finalRest)
                         System.err.println(finalRest)
-                        binding.composeView.setContent { AwesomeCarousel(restaurantId = finalRest) }
+                        binding.composeView.setContent { AwesomeCarousel(restaurantId = finalRest, restaurant = restaurant) }
                     } catch (e: NoSuchElementException) {
                         binding.errorMessageText.isVisible = true
                         binding.errorMessageText.text = "No restaurants available with these filters," +
                                 " please try expanding your options"
                     }
-                }
+//                }
             }
         }
         return root
@@ -212,5 +215,32 @@ class FilterFragment : Fragment() {
             return@withContext validRests
         }
         return validRests
+    }
+
+    private suspend fun getRestaurantObject(restId: Int): RestaurantObject {
+        val restaurantDb = DatabaseModule.provideDatabase(requireContext())
+        val restaurantDao = restaurantDb.restaurantDao()
+
+        val restaurant = withContext(Dispatchers.IO){
+            return@withContext RestaurantObject(
+                rest_name = restaurantDao.getRestaurantName(restId),
+                rest_type = restaurantDao.getRestaurantType(restId),
+                rest_photo = restaurantDao.getRestaurantPhoto(restId),
+                rest_url = restaurantDao.getRestaurantUrl(restId),
+                rest_area = restaurantDao.getRestaurantArea(restId),
+                rest_address = restaurantDao.getRestaurantAddress(restId),
+                rest_lat = restaurantDao.getRestaurantLat(restId),
+                rest_long = restaurantDao.getRestaurantLong(restId),
+                hours_mon = restaurantDao.getHoursMon(restId),
+                hours_tues = restaurantDao.getHoursTues(restId),
+                hours_wed = restaurantDao.getHoursWed(restId),
+                hours_thurs = restaurantDao.getHoursThurs(restId),
+                hours_fri = restaurantDao.getHoursFri(restId),
+                hours_sat = restaurantDao.getHoursSat(restId),
+                hours_sun = restaurantDao.getHoursSun(restId)
+            )
+        }
+
+        return restaurant
     }
 }
