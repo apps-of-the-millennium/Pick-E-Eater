@@ -32,10 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pick_e_eater.model.RestaurantObject
+//import com.example.pick_e_eater.ui.Restaurant.Preview
+import com.example.pick_e_eater.ui.restaurant.Restaurant
 import kotlinx.coroutines.launch
 
 
@@ -63,6 +65,7 @@ fun AwesomeCarousel(
     pagerState: PagerState = rememberPagerState(),
     restaurantId: Int,
 //        autoScrollDuration: Long = 200L
+    restaurant: RestaurantObject
 ) {
     var cardFace by remember { mutableStateOf(CardFace.Front) }
     var resultsVisible by remember { mutableStateOf(false) }
@@ -103,7 +106,8 @@ fun AwesomeCarousel(
         userScrollEnabled = false
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .background(Color.White)
         ) {
             FlipCard(
@@ -113,7 +117,7 @@ fun AwesomeCarousel(
                 onAnimationDone = { resultsVisible = true },
             )
         }
-        viewResultsBtn(resultsVisible, restaurantId)
+        viewResultsBtn(resultsVisible, restaurantId, restaurant)
     }
 }
 
@@ -185,7 +189,10 @@ fun questionBlock(scale: Dp) {
 }
 
 @Composable
-fun viewResultsBtn(visible: Boolean, restaurantId: Int) {
+fun viewResultsBtn(visible: Boolean, restaurantId: Int, restaurant: RestaurantObject) {
+    var buttonClicked = remember {
+        mutableStateOf(false)
+    }
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -196,12 +203,26 @@ fun viewResultsBtn(visible: Boolean, restaurantId: Int) {
         ) {
             Button(
                 onClick = {
-                    //TODO: take you to the results page
-                    restaurantId
+                    //TODO: take you to the results page.
+                    // This should link to the RestaurantComposable.kt
+                    // (ex: Restaurant(restId = restaurantId))
+                    buttonClicked.value = true
                 })
             {
                 Text("View Results")
             }
         }
+        if (buttonClicked.value) {
+            Restaurant(rest = restaurant)
+        }
     }
 }
+
+//@OptIn(ExperimentalFoundationApi::class)
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun Preview() {
+//    AwesomeCarousel(restaurantId = 0, context = context)
+//    //viewResultsBtn(visible = true, restaurantId = 1)
+//    //questionBlock(scale = 100.dp)
+//}
