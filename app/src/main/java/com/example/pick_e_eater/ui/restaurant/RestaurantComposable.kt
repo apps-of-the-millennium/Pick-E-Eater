@@ -45,30 +45,26 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.pick_e_eater.model.RestaurantObject
+import com.example.pick_e_eater.model.Restaurant
 
-fun checkIfNullOrEmpty(value: String?): String{
-    if (value != null && value != "") {
-        return value
-    } else {
-        return "N/A"
-    }
+fun String?.sanitize(): String {
+    return if (this.isNullOrEmpty()) "N/A" else this
 }
 
 @Composable
-fun Restaurant(rest: RestaurantObject) {
-    val area = checkIfNullOrEmpty(rest.area)
-    val address = checkIfNullOrEmpty(rest.address)
+fun RestaurantComposable(rest: Restaurant) {
+    val area = rest.rest_area.sanitize()
+    val address = rest.rest_address.sanitize()
     val hours = listOf(
-        "Monday: " + checkIfNullOrEmpty(rest.hoursMon),
-        "Tuesday: " + checkIfNullOrEmpty(rest.hoursTues),
-        "Wednesday: " + checkIfNullOrEmpty(rest.hoursWed),
-        "Thursday: " + checkIfNullOrEmpty(rest.hoursThurs),
-        "Friday: " + checkIfNullOrEmpty(rest.hoursFri),
-        "Saturday: " + checkIfNullOrEmpty(rest.hoursSat),
-        "Sunday: " + checkIfNullOrEmpty(rest.hoursSun),
+        "Monday: " + rest.hours_mon.sanitize(),
+        "Tuesday: " + rest.hours_tues.sanitize(),
+        "Wednesday: " + rest.hours_wed.sanitize(),
+        "Thursday: " + rest.hours_thurs.sanitize(),
+        "Friday: " + rest.hours_fri.sanitize(),
+        "Saturday: " + rest.hours_sat.sanitize(),
+        "Sunday: " + rest.hours_sun.sanitize(),
     )
-    val website = checkIfNullOrEmpty(rest.url)
+    val website = rest.rest_url.sanitize()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,7 +81,7 @@ fun Restaurant(rest: RestaurantObject) {
                 shape = RectangleShape,
                 elevation = 8.dp,
             ){
-                Image(painter = rememberAsyncImagePainter(model = rest.photo),
+                Image(painter = rememberAsyncImagePainter(model = rest.rest_photo),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
@@ -107,7 +103,7 @@ fun Restaurant(rest: RestaurantObject) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = rest.name, fontSize = 22.sp, color = Color.Gray,
+                    Text(text = rest.rest_name, fontSize = 22.sp, color = Color.Gray,
                         modifier = Modifier
                             .padding(end = 10.dp)
                     )
@@ -115,7 +111,7 @@ fun Restaurant(rest: RestaurantObject) {
                         modifier = Modifier
                             .padding(end = 10.dp)
                     )
-                    Text(text = rest.type!!, fontSize = 22.sp, color = Color.Gray)
+                    Text(text = rest.rest_type!!, fontSize = 22.sp, color = Color.Gray)
                 }
 
                 Divider(modifier = Modifier
@@ -231,10 +227,6 @@ fun GetHours(listOfHours: List<String>){
 
 @Composable
 fun HyperlinkInSentence(sourceText: String, hyperlinkText: String, endText: String, uri: String) {
-    val sourceText = sourceText
-    val hyperlinkText = hyperlinkText
-    val endText = endText
-    val uri = uri
 
     val annotatedString = buildAnnotatedString {
         append(sourceText)
@@ -264,8 +256,8 @@ fun HyperlinkInSentence(sourceText: String, hyperlinkText: String, endText: Stri
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun Preview() {
-    Restaurant(rest =
-        RestaurantObject(
+    RestaurantComposable(
+        rest = Restaurant(
             rest_name = "100 Percent Korean",
             rest_type = "Korean",
             rest_photo = "https://s3-media0.fl.yelpcdn.com/bphoto/5NlayoVpyg-B1uCctxZB7Q/348s.jpg",

@@ -35,9 +35,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pick_e_eater.model.RestaurantObject
+import com.example.pick_e_eater.model.Restaurant
 //import com.example.pick_e_eater.ui.Restaurant.Preview
-import com.example.pick_e_eater.ui.restaurant.Restaurant
+import com.example.pick_e_eater.ui.restaurant.RestaurantComposable
 import kotlinx.coroutines.launch
 
 
@@ -63,9 +63,8 @@ enum class BoxState {
 fun AwesomeCarousel(
     pageCount: Int = 25,
     pagerState: PagerState = rememberPagerState(),
-    restaurantId: Int,
 //        autoScrollDuration: Long = 200L
-    restaurant: RestaurantObject
+    restaurant: Restaurant
 ) {
     var cardFace by remember { mutableStateOf(CardFace.Front) }
     var resultsVisible by remember { mutableStateOf(false) }
@@ -117,7 +116,7 @@ fun AwesomeCarousel(
                 onAnimationDone = { resultsVisible = true },
             )
         }
-        viewResultsBtn(resultsVisible, restaurantId, restaurant)
+        viewResultsBtn(resultsVisible, restaurant)
     }
 }
 
@@ -189,7 +188,7 @@ fun questionBlock(scale: Dp) {
 }
 
 @Composable
-fun viewResultsBtn(visible: Boolean, restaurantId: Int, restaurant: RestaurantObject) {
+fun viewResultsBtn(visible: Boolean, restaurant: Restaurant) {
     var buttonClicked = remember {
         mutableStateOf(false)
     }
@@ -203,9 +202,6 @@ fun viewResultsBtn(visible: Boolean, restaurantId: Int, restaurant: RestaurantOb
         ) {
             Button(
                 onClick = {
-                    //TODO: take you to the results page.
-                    // This should link to the RestaurantComposable.kt
-                    // (ex: Restaurant(restId = restaurantId))
                     buttonClicked.value = true
                 })
             {
@@ -213,7 +209,7 @@ fun viewResultsBtn(visible: Boolean, restaurantId: Int, restaurant: RestaurantOb
             }
         }
         if (buttonClicked.value) {
-            Restaurant(rest = restaurant)
+            RestaurantComposable(rest = restaurant)
         }
     }
 }
